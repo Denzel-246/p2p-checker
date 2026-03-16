@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="P2P Checker" />
+<title>P2P Spread Checker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f0f;
+    color: #f0f0f0;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-top: 10px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  header p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 16px;
+    color: #fff;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .field input:focus {
+    border-color: #F0B90B;
+  }
+
+  .field input::placeholder {
+    color: #444;
+  }
+
+  .amount-field { margin-top: 4px; }
+  .amount-field label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+  .amount-field input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 16px;
+    color: #fff;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .amount-field input:focus { border-color: #F0B90B; }
+
+  .btn {
+    width: 100%;
+    background: #F0B90B;
+    color: #000;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 6px;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+  }
+
+  .btn:active { opacity: 0.85; transform: scale(0.99); }
+
+  #result { display: none; margin-top: 6px; }
+
+  .verdict {
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 14px;
+    letter-spacing: 0.1px;
+  }
+
+  .go { background: #0d2b1a; color: #2ecc71; border: 1px solid #1a5c33; }
+  .wait { background: #2b0d0d; color: #e74c3c; border: 1px solid #5c1a1a; }
+  .maybe { background: #2b220d; color: #f39c12; border: 1px solid #5c440d; }
+
+  .spreads-card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    border: 1px solid #2a2a2a;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+
+  .spread-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #222;
+    font-size: 13px;
+  }
+
+  .spread-row:last-child { border-bottom: none; }
+  .spread-label { color: #aaa; flex: 1; padding-right: 8px; }
+  .spread-value { font-weight: 700; font-size: 14px; }
+
+  .green { color: #2ecc71; }
+  .orange { color: #f39c12; }
+  .red { color: #e74c3c; }
+
+  .best-badge {
+    font-size: 10px;
+    background: #F0B90B22;
+    color: #F0B90B;
+    border: 1px solid #F0B90B44;
+    border-radius: 6px;
+    padding: 2px 6px;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .metric {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .tip {
+    background: #111;
+    border-left: 3px solid #F0B90B;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.6;
+  }
+
+  .tip strong { color: #F0B90B; }
+
+  footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 11px;
+    color: #444;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>P2P Spread Checker</h1>
+  <p>Enter rates → get instant verdict</p>
+</header>
+
+<div class="card">
+  <div class="card-title">Binance P2P</div>
+  <div class="row">
+    <div class="field">
+      <label>Buy rate (GHS)</label>
+      <input type="number" id="bin-buy" placeholder="11.62" step="0.01" inputmode="decimal" />
+    </div>
+    <div class="field">
+      <label>Sell rate (GHS)</label>
+      <input type="number" id="bin-sell" placeholder="11.80" step="0.01" inputmode="decimal" />
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Bybit P2P</div>
+  <div class="row">
+    <div class="field">
+      <label>Buy rate (GHS)</label>
+      <input type="number" id="byb-buy" placeholder="11.55" step="0.01" inputmode="decimal" />
+    </div>
+    <div class="field">
+      <label>Sell rate (GHS)</label>
+      <input type="number" id="byb-sell" placeholder="11.75" step="0.01" inputmode="decimal" />
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="amount-field">
+    <label>Your USDT amount</label>
+    <input type="number" id="amount" placeholder="100" value="100" step="1" inputmode="numeric" />
+  </div>
+</div>
+
+<button class="btn" onclick="calculate()">CHECK SPREAD</button>
+
+<div id="result">
+  <div id="verdict-box"></div>
+  <div class="spreads-card" id="spreads-list"></div>
+  <div class="metrics" id="metrics-grid"></div>
+  <div class="tip" id="tip-box"></div>
+</div>
+
+<footer>SikaTrack · Built for Nana 🇬🇭</footer>
+
+<script>
+function calculate() {
+  const binBuy = parseFloat(document.getElementById('bin-buy').value);
+  const binSell = parseFloat(document.getElementById('bin-sell').value);
+  const bybBuy = parseFloat(document.getElementById('byb-buy').value);
+  const bybSell = parseFloat(document.getElementById('byb-sell').value);
+  const amount = parseFloat(document.getElementById('amount').value) || 100;
+
+  if ([binBuy, binSell, bybBuy, bybSell].some(isNaN)) {
+    alert('Please fill in all 4 rate fields.');
+    return;
+  }
+
+  const options = [
+    { label: 'Binance only', spread: binSell - binBuy },
+    { label: 'Bybit only', spread: bybSell - bybBuy },
+    { label: 'Buy Binance → Sell Bybit', spread: bybSell - binBuy },
+    { label: 'Buy Bybit → Sell Binance', spread: binSell - bybBuy },
+  ];
+
+  const best = options.reduce((a, b) => a.spread > b.spread ? a : b);
+  const profit = best.spread * amount;
+  const profitPct = ((profit / (amount * Math.min(binBuy, bybBuy))) * 100).toFixed(2);
+
+  let verdictClass, verdictText;
+  if (best.spread >= 1.5) {
+    verdictClass = 'go';
+    verdictText = '✓ GO — Spread is good. Trade now!';
+  } else if (best.spread >= 0.5) {
+    verdictClass = 'maybe';
+    verdictText = '~ SMALL — Only trade for practice';
+  } else {
+    verdictClass = 'wait';
+    verdictText = '✗ WAIT — Spread too small. Not worth it';
+  }
+
+  document.getElementById('verdict-box').innerHTML = `<div class="verdict ${verdictClass}">${verdictText}</div>`;
+
+  document.getElementById('spreads-list').innerHTML = options.map(o => {
+    const isBest = o.label === best.label;
+    const cls = o.spread >= 1.5 ? 'green' : o.spread >= 0.5 ? 'orange' : 'red';
+    return `
+      <div class="spread-row">
+        <span class="spread-label">${o.label}${isBest ? '<span class="best-badge">BEST</span>' : ''}</span>
+        <span class="spread-value ${cls}">GHS ${o.spread.toFixed(2)}</span>
+      </div>`;
+  }).join('');
+
+  document.getElementById('metrics-grid').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Best spread</div>
+      <div class="metric-value">GHS ${best.spread.toFixed(2)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Profit on ${amount} USDT</div>
+      <div class="metric-value">GHS ${profit.toFixed(2)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Return %</div>
+      <div class="metric-value">${profitPct}%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">3 cycles/day</div>
+      <div class="metric-value">GHS ${(profit * 3).toFixed(2)}</div>
+    </div>`;
+
+  let tip = '';
+  if (best.spread < 0.5) {
+    tip = '<strong>Tip:</strong> Check again at 5:30am or 7pm — spreads are usually better during peak hours.';
+  } else if (best.label.includes('Bybit') || best.label.includes('Binance →')) {
+    tip = '<strong>Tip:</strong> Cross-platform trade — withdraw USDT to Trust Wallet first, then deposit to the other platform.';
+  } else {
+    tip = '<strong>Tip:</strong> Always confirm MoMo payment before releasing USDT. Only trade with 500+ trade verified merchants.';
+  }
+
+  document.getElementById('tip-box').innerHTML = tip;
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
